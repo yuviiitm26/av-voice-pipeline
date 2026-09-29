@@ -1047,6 +1047,16 @@ def generate_sample_desktop_screenshot(
 class PixelJevGrounder:
     """
     Visual element grounding using YOLO (for UI objects) and EasyOCR (for text).
+    
+    ARCHITECTURAL DECISION: YOLO vs OpenCV Heuristics vs VLMs
+    ---------------------------------------------------------
+    1. Why not OpenCV? Traditional heuristics (like cv2.findContours) are brittle. 
+       They rely on hardcoded edge detection that breaks when UI themes, colors, or layouts change.
+    2. Why not VLMs (e.g., GPT-4V)? Vision-Language Models take 2-5 seconds per frame, 
+       which is unacceptable for an ultra-low-latency voice automation pipeline.
+    3. Why YOLO + OCR? YOLO processes a frame in 10-30ms. By combining YOLO (to detect UI 
+       primitives like [Button], [Input]) with EasyOCR (to read text), we achieve 
+       VLM-level semantic understanding at hardware-level speeds.
     """
 
     def __init__(self) -> None:
