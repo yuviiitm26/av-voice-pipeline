@@ -128,16 +128,18 @@ class PixelJevGrounder:
                 return (cx, cy, 0.95)
         return None
 
-    def _yolo_ocr_match(self, image: np.ndarray, target: str) -> Optional[Tuple[float, float, float]]:
+    def _yolo_ocr_match(self, image: np.ndarray, query: str) -> Optional[Tuple[float, float, float]]:
         # 1. OCR text extraction
         ocr_results = self.ocr.readtext(image)
         
-        target_lower = target.lower().replace(" button", "").replace(" tab", "").replace(" field", "")
+        query_lower = query.lower()
         
         # 2. Find matching text
         best_box = None
         for (bbox, text, conf) in ocr_results:
-            if target_lower in text.lower():
+            t = text.lower().strip()
+            # If the OCR text (e.g. 'Start') is anywhere in the user's transcript (e.g. 'click start')
+            if len(t) > 2 and t in query_lower:
                 best_box = bbox
                 break
                 
