@@ -39,14 +39,14 @@ class MockJevBrain:
 
     _ACTION_KEYWORDS: Dict[ActionType, List[str]] = {
         ActionType.CLOSE_APP:     ["close", "quit", "exit", "kill", "shut"],
-        ActionType.LAUNCH_APP:    ["open", "launch", "start", "run"],
+        ActionType.LAUNCH_APP:    ["open", "launch", "start", "run", "search", "play"],
         ActionType.CLICK_ELEMENT: ["click", "press", "tap", "select", "hit", "button"],
         ActionType.SCROLL:        ["scroll", "swipe"],
         ActionType.TYPE_TEXT:     ["type", "write", "enter", "input", "fill"],
     }
 
     _TARGET_KEYWORDS: Dict[TargetType, List[str]] = {
-        TargetType.BROWSER:    ["browser", "chrome", "firefox", "web", "tab", "url"],
+        TargetType.BROWSER:    ["browser", "chrome", "firefox", "web", "tab", "url", "youtube", "you tube"],
         TargetType.EDITOR:     ["editor", "code", "vscode", "ide", "file"],
         TargetType.TERMINAL:   ["terminal", "console", "bash", "cmd", "shell"],
     }
@@ -127,8 +127,8 @@ class MockJevBrain:
 
         # Confidence gating
         auto_exec = (top_act_p > 0.90) and (risk < 0.20)
-        req_conf  = (0.60 <= top_act_p <= 0.90) or (risk >= 0.50)
-        if top_act_p < 0.60:
+        req_conf  = (0.40 <= top_act_p <= 0.90) or (risk >= 0.50)
+        if top_act_p < 0.40:
             top_act   = ActionType.NO_ACTION
             auto_exec = False
             req_conf  = False
