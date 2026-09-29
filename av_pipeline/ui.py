@@ -24,6 +24,7 @@ import torch.nn.functional as F
 import gradio as gr
 from pydantic import BaseModel, Field
 
+from .core import ActionType
 from .diagnostics import run_diagnostics
 from .synthetic import generate_synthetic_speech, generate_lip_video_crops, CocktailPartyMixer, visualize_cocktail_party
 from .audio import AVTSEEngine, SileroVADProcessor, StreamingASREngine
@@ -41,7 +42,8 @@ def build_gradio_app(
 ) -> gr.Blocks:
     """Constructs a 3-tab Gradio Blocks application."""
 
-    screen_img = generate_sample_desktop_screenshot()
+    # No dummy screen here; we grab the live screen inside the functions when needed.
+    from PIL import ImageGrab
 
     # ────────────────── Tab 1: Synthetic ──────────────────
     def process_synthetic(
@@ -125,8 +127,52 @@ def build_gradio_app(
 
         asr_res   = asr.transcribe(audio_f32)
         decision  = jev.evaluate(asr_res["text"])
-        grounding = grounder.ground(screen_img, decision.target.value)
+
+        # Capture live screen for OCR!
+        pil_img = ImageGrab.grab()
+        screen_img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+
+        # Ground against the raw transcript so OCR can find the exact words!
+        grounding = grounder.ground(screen_img, asr_res["text"])
         payload   = serializer.serialize_decision(decision, grounding)
+
+        # ====================================================
+        # GENERIC LOCAL EXECUTION HOOK (Visible Demo for User)
+        # ====================================================
+        transcript_lower = asr_res["text"].lower()
+        print(f"\n[ASR Transcript] {transcript_lower}")
+        print(f"[Decision] {decision.action.value} on {decision.target.value}")
+        
+        # We execute generic clicks if YOLO/OCR found coordinates
+        if decision.action != ActionType.NO_ACTION:
+            try:
+                import pyautogui
+                nx = grounding.get("norm_x", 0.0)
+                ny = grounding.get("norm_y", 0.0)
+                
+                # if we have a valid coordinate (not 0,0 default fallback)
+                if nx != 0.0 and ny != 0.0:
+                    sw, sh = pyautogui.size()
+                    abs_x = int(nx * sw)
+                    abs_y = int(ny * sh)
+                    print(f"[Actuator] Moving to ({abs_x}, {abs_y}) and clicking...")
+                    pyautogui.moveTo(abs_x, abs_y, duration=0.5)
+                    pyautogui.click()
+                
+                # If they want to type
+                if decision.action == ActionType.TYPE_TEXT:
+                    # simplistic extraction: type whatever comes after "type" or "write"
+                    words = transcript_lower.split()
+                    for kw in ["type", "write", "enter"]:
+                        if kw in words:
+                            idx = words.index(kw)
+                            text_to_type = " ".join(words[idx+1:])
+                            if text_to_type:
+                                print(f"[Actuator] Typing: {text_to_type}")
+                                pyautogui.write(text_to_type, interval=0.05)
+                            break
+            except ImportError:
+                print("[Actuator] pyautogui not installed, skipping physical execution.")
 
         return (
             asr_res["text"],
