@@ -27,7 +27,7 @@ from pydantic import BaseModel, Field
 from .synthetic import CocktailPartyMixer
 from .audio import AVTSEEngine, SileroVADProcessor, StreamingASREngine
 from .brain import JevBrainRouter
-from .vision import PixelJevGrounder, ActionSerializer
+from .vision import PixelJevGrounder, ActionSerializer, generate_sample_desktop_screenshot
 
 def si_sdr(reference: np.ndarray, estimate: np.ndarray) -> float:
     """Scale-Invariant Signal-to-Distortion Ratio (dB)."""
