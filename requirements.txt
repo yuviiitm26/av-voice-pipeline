@@ -11,3 +11,5 @@ tqdm
 pandas
 pydantic>=2.0
 gradio>=4.0
+ultralytics
+easyocr
