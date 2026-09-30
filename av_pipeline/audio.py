@@ -315,9 +315,12 @@ class StreamingASREngine:
         # 2) Whisper
         try:
             import whisper                                             # type: ignore
-            self._model = whisper.load_model("tiny", device=self.device)
+            import platform
+            default_cache = r"D:\ai_cache\whisper" if platform.system() == "Windows" else "~/.cache/whisper"
+            whisper_cache = os.environ.get("WHISPER_CACHE_DIR", os.path.expanduser(default_cache))
+            self._model = whisper.load_model("tiny", device=self.device, download_root=whisper_cache)
             self.backend = "whisper-tiny"
-            print("[ASR] Whisper-tiny loaded.")
+            print(f"[ASR] Whisper-tiny loaded from {whisper_cache}.")
             return
         except Exception:
             pass
