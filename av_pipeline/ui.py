@@ -129,7 +129,13 @@ def build_gradio_app(
         decision  = jev.evaluate(asr_res["text"])
 
         # Capture live screen for OCR!
-        pil_img = ImageGrab.grab()
+        try:
+            pil_img = ImageGrab.grab(all_screens=True)
+        except Exception:
+            # Fallback if ImageGrab completely fails
+            import pyautogui
+            pil_img = pyautogui.screenshot()
+            
         screen_img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
         # Ground against the raw transcript so OCR can find the exact words!
