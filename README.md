@@ -63,3 +63,6 @@ python av_voice_pipeline.py
 - PyTorch 2.0+
 - See `requirements.txt` for full list
 
+## License
+
+MIT
