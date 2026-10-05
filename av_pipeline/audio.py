@@ -318,9 +318,13 @@ class StreamingASREngine:
             import platform
             default_cache = r"D:\ai_cache\whisper" if platform.system() == "Windows" else "~/.cache/whisper"
             whisper_cache = os.environ.get("WHISPER_CACHE_DIR", os.path.expanduser(default_cache))
-            self._model = whisper.load_model("tiny", device=self.device, download_root=whisper_cache)
-            self.backend = "whisper-tiny"
-            print(f"[ASR] Whisper-tiny loaded from {whisper_cache}.")
+            
+            # 🚀 GPU UPGRADE: If we have a Kaggle GPU, use 'small' for much better accuracy. Otherwise 'tiny' for CPU.
+            model_size = "small" if self.device == "cuda" else "tiny"
+            
+            self._model = whisper.load_model(model_size, device=self.device, download_root=whisper_cache)
+            self.backend = f"whisper-{model_size}"
+            print(f"[ASR] Whisper-{model_size} loaded on {self.device} from {whisper_cache}.")
             return
         except Exception:
             pass
