@@ -62,9 +62,9 @@ def process_command(audio_filepath, kaggle_url):
         return "Please paste your active Kaggle Gradio URL above!"
         
     print("Taking screenshot of local machine...")
-    pil_img = ImageGrab.grab()
+    pil_img = ImageGrab.grab(all_screens=True) # Ensure multi-monitor support
     screen_path = "temp_screen.jpg"
-    pil_img.save(screen_path)
+    pil_img.save(screen_path, format="JPEG", quality=85, optimize=True)
     
     print(f"Sending to Kaggle GPU: {kaggle_url}")
     try:
