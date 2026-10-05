@@ -84,9 +84,9 @@ def main():
                         silence_frames = 0
             
             # 1. Grab Screen
-            pil_img = ImageGrab.grab()
+            pil_img = ImageGrab.grab(all_screens=True)
             screen_path = "temp_screen.jpg"
-            pil_img.save(screen_path)
+            pil_img.save(screen_path, format="JPEG", quality=85, optimize=True)
             
             # 2. Save Audio
             audio_data = np.concatenate(recording, axis=0)
