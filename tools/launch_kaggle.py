@@ -19,9 +19,9 @@ def main():
         nbf.v4.new_code_cell(
             "!git clone https://github.com/yuviiitm26/av-voice-pipeline.git\n"
             "%cd av-voice-pipeline\n"
-            "!pip install -r requirements.txt\n"
-            "!pip install easyocr ultralytics soundfile librosa openai-whisper\n"
-            "!python server.py"
+            "!pip install -q -r requirements.txt\n"
+            "!pip install -q easyocr ultralytics soundfile librosa openai-whisper\n"
+            "!python server/server.py"
         )
     ]
     nb["cells"] = cells
